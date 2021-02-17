@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country API</title>
+    <style>
+        @import url(style.css);
+    </style>
+</head>
+
+<body>
+    <div class="card card-1" style="float: left;text-align: center;">
+        <h1>All Countries Data</h1><hr>
+        <select id="countryname">
+            <option value="">Select Country</option>
+        </select><br>
+        <select id="statename">
+            <option value="">Select States</option>
+        </select>
+        <select id="cityname">
+            <option value="">Select cities</option>
+        </select>
+    </div>
+    <div class="card card-1" id="info">
+        <h1 style="text-align: center;">Country Info</h1><hr>
+        <div id="countryinfo">
+
+        </div>
+    </div>
+    <script>
+        var countryId;
+        var country = fetch("countries.json")
+            .then(response => {
+                return response.json();
+            });
+        //all country fetch    
+        async function getCountryData() {
+            let countryData = await country;
+            for (let i = 0; i < countryData.length; i++) {
+                countryname.insertAdjacentHTML("beforeend", `<option value=${[i]} >${countryData[i]['name']}</option>`);
+            }
+           
+        }
+        getCountryData();
+
+        //all states country wise
+        async function getStatesData(countryid) {
+            statename.innerHTML = "";
+            statename.style.display="block";
+            let data = await country;
+            let statesData = data[countryid]['states'];
+            for (let i = 0; i < statesData.length; i++) {
+                statename.insertAdjacentHTML("beforeend", `<option value=${[i]} >${statesData[i]['name']}</option>`);
+            }
+        }
+        //all cities state wise
+        async function getCitiesData(countryid, stateid) {
+            cityname.innerHTML = "";
+            cityname.style.display="block";
+            let data = await country;
+            let citiesData = data[countryid]['states'][stateid]['cities'];
+            for (let i = 0; i < citiesData.length; i++) {
+                cityname.insertAdjacentHTML("beforeend", `<option value=${[i]} >${citiesData[i]['name']}</option>`);
+            }
+        }
+
+        //country details
+        async function getCountryInfo(countryid) {
+            countryinfo.innerHTML="";
+            let data = await country;
+            let infoData = data[countryid];
+            console.log(infoData);
+            countryinfo.insertAdjacentHTML("beforeend",`<h2>Country: ${infoData['name']} </h2><h3>Region: ${infoData['region']}</h3><h3>SubRegion: ${infoData['subregion']}</h3><h4>Total State: ${Object.keys(infoData['states']).length} </h4><h4>Currency: ${infoData['currency']} </h4><h4>Country Code: ${infoData['iso2']} </h4><h4>Phone Code: +${infoData['phone_code']} </h4><h4>Time Zone: ${infoData['timezones'][0]['gmtOffsetName']} ${infoData['timezones'][0]['zoneName']}  </h4>`);
+            
+        }
+        
+        //Event
+        countryname.addEventListener("change", function () {
+            countryId = (this.value);
+            getStatesData(countryId);
+            getCountryInfo(countryId);
+        });
+        statename.addEventListener("change", function() {
+            getCitiesData(countryId, this.value);
+        });
+
+
+    </script>
+</body>
+
+</html>
